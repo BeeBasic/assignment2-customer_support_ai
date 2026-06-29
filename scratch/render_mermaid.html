@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Render Mermaid Diagrams</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    body {
+      background-color: #0f172a;
+      color: #f8fafc;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      margin: 0;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 50px;
+    }
+    .diagram-container {
+      background-color: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 30px;
+      width: 1000px;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h2 {
+      margin-top: 0;
+      margin-bottom: 20px;
+      font-size: 24px;
+      font-weight: 600;
+      color: #38bdf8;
+    }
+    .mermaid {
+      width: 100%;
+      background-color: transparent;
+    }
+  </style>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      flowchart: { useMaxWidth: true, htmlLabels: true },
+      securityLevel: 'loose'
+    });
+  </script>
+</head>
+<body>
+  <div class="diagram-container" id="container1">
+    <h2>1. System Architecture Flowchart</h2>
+    <div class="mermaid">
+      flowchart TD
+          A([Customer Query]) --> B[Intent Classifier<br>LLM Node]
+          B --> C{Conditional Router<br>route by intent}
+
+          C -- sales --> D[Sales Agent]
+          C -- technical --> E[Technical Support Agent]
+          C -- billing --> F[Billing Agent]
+          C -- account --> G[Account Agent]
+
+          D & E & F & G --> H[(SQLite<br>Memory Retriever)]
+          H --> I[(Vector Store<br>RAG Retriever)]
+          I --> J{HITL Router<br>requires_approval?}
+
+          J -- No --> K[Supervisor Agent]
+          J -- Yes --> L[Human Approval Node<br>Interrupt + Checkpoint]
+
+          L -- Approved --> K
+          L -- Rejected --> M([Rejection Response<br>to Customer])
+
+          K --> N([Final Response<br>to Customer])
+          N --> O[(SQLite<br>Write Conversation Turn)]
+
+          style A fill:#4f46e5,color:#fff,stroke:none
+          style B fill:#7c3aed,color:#fff,stroke:none
+          style C fill:#0891b2,color:#fff,stroke:none
+          style D fill:#065f46,color:#fff,stroke:none
+          style E fill:#065f46,color:#fff,stroke:none
+          style F fill:#065f46,color:#fff,stroke:none
+          style G fill:#065f46,color:#fff,stroke:none
+          style H fill:#92400e,color:#fff,stroke:none
+          style I fill:#92400e,color:#fff,stroke:none
+          style J fill:#b45309,color:#fff,stroke:none
+          style L fill:#9f1239,color:#fff,stroke:none
+          style K fill:#1e3a5f,color:#fff,stroke:none
+          style M fill:#6b7280,color:#fff,stroke:none
+          style N fill:#166534,color:#fff,stroke:none
+          style O fill:#92400e,color:#fff,stroke:none
+    </div>
+  </div>
+
+  <div class="diagram-container" id="container2">
+    <h2>2. State Flow Diagram (Data Perspective)</h2>
+    <div class="mermaid">
+      sequenceDiagram
+          participant C as Customer
+          participant IC as Intent Classifier
+          participant AG as Specialized Agent
+          participant MEM as SQLite Memory
+          participant RAG as Vector Store
+          participant HITL as Human Reviewer
+          participant SUP as Supervisor Agent
+
+          C->>IC: raw_query
+          IC->>IC: Classify intent + set requires_approval
+          IC->>AG: Route to correct agent (intent label)
+          AG->>MEM: Fetch conversation history (SELECT)
+          MEM-->>AG: Previous turns
+          AG->>RAG: Embed query + retrieve top-K chunks
+          RAG-->>AG: Relevant document passages
+          AG->>AG: Generate draft response
+
+          alt requires_approval == True
+              AG->>HITL: Send draft + metadata (interrupt)
+              Note over HITL: Graph PAUSED. State saved to checkpoint.
+              HITL->>HITL: Review draft
+              HITL->>AG: Command(resume="approved")
+              Note over AG: Graph RESUMED from checkpoint.
+          end
+
+          AG->>SUP: Pass agent_draft + retrieved_docs
+          SUP->>SUP: Verify quality on 4 dimensions
+          SUP->>C: Send final_response
+          SUP->>MEM: Write turn to conversation history (INSERT)
+    </div>
+  </div>
+</body>
+</html>

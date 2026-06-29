@@ -1,0 +1,29 @@
+# ============================================================
+# LangGraph AI Customer Support Automation System
+# requirements.txt
+#
+# Install with: pip install -r requirements.txt
+# Python: 3.11
+# ============================================================
+
+# ── Core LangGraph & LangChain ──────────────────────────────
+langgraph==0.2.73            # Graph orchestration engine (StateGraph, interrupt, SqliteSaver)
+langchain==0.3.25            # Base LangChain framework
+langchain-core==0.3.61       # Core abstractions (BaseMessage, PromptTemplate, etc.)
+langchain-ollama==0.2.3      # Ollama integration for LangChain (ChatOllama, OllamaEmbeddings)
+langchain-community==0.3.24  # Community tools (ChromaDB loader, SQLite memory, etc.)
+
+# ── Vector Store ────────────────────────────────────────────
+chromadb==0.5.23             # Local vector database for RAG document storage
+
+# ── Document Loading ────────────────────────────────────────
+pypdf==5.1.0                 # PDF loader for company documents
+
+# ── Environment Configuration ───────────────────────────────
+python-dotenv==1.0.1         # Load environment variables from .env file
+
+# ── SQLite (built-in, no install needed) ────────────────────
+# sqlite3 is part of Python's standard library
+
+# ── Utility ─────────────────────────────────────────────────
+pydantic==2.10.6             # Data validation (used internally by LangChain)
